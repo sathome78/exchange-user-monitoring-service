@@ -1,0 +1,74 @@
+spring:
+  profiles:
+    active: dev
+  application:
+    admin:
+      enabled: true
+    name: input-output-service
+  datasource:
+    hikari:
+      ssm-path: vLHjSkPJjB6JLVcA
+      username: root
+      password: root
+      jdbc-url: jdbc:mysql://localhost:3306/user_monitoring?useSSL=false
+      connection-test-query: SELECT 1 FROM DUAL
+      driver-class-name: com.mysql.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+  redis:
+    host: 172.10.10.236
+    port: 6379
+  #  flyway:
+  #    locations: classpath:db/migration
+  #    user: root
+  #    password: root
+  #    #url: jdbc:mysql://localhost:3306/inout_test?useSSL=false
+  #    url: jdbc:mysql://localhost:3306/birzha?useSSL=false
+  #    baseline-on-migrate: false
+  #    validate-on-migrate: false
+  rabbitmq:
+    username: angulardemoaccess
+    password: angulardemoaccess
+    host: 172.31.14.1
+    port: 5672
+
+#logging:
+#  level:
+#    ROOT: DEBUG
+
+server:
+  port: 8090
+#slave:
+#  datasource:
+#    hikari:
+#      password: root
+#      username: root
+#      jdbc-url: jdbc:mysql://localhost:3306/birzha?useUnicode=true&characterEncoding=UTF-8&useSSL=false
+#      connection-test-query: SELECT 1 FROM DUAL
+#      driver-class-name: com.mysql.jdbc.Driver
+ssm:
+  mode: dev
+  path: /exrates/auth-service/test/pass.token
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_URI:http://172.50.50.245:8090/eureka}
+    should-unregister-on-shutdown: true
+    registry-fetch-interval-seconds: 5
+  instance:
+    preferIpAddress: true
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+    lease-renewal-interval-in-seconds: 10
+    metadata-map:
+      startup: ${random.int}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: ALWAYS

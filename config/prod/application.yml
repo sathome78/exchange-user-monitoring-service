@@ -1,0 +1,65 @@
+spring:
+  profiles:
+    active: prod
+  application:
+    admin:
+      enabled: true
+    name: input-output-service
+  datasource:
+    hikari:
+      ssm-path: vLHjSkPJjB6JLVcA #TODO make lookup password from ssm for prod profile
+      username: root
+      jdbc-url: jdbc:mysql://localhost:3306/inout_test?useSSL=false
+      connection-test-query: SELECT 1 FROM DUAL
+      driver-class-name: com.mysql.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+  redis:
+    host: 172.10.10.236 #
+    port: 6379
+  flyway:
+    locations: classpath:db/migration
+    user: root
+    password: root #TODO prod
+    url: jdbc:mysql://localhost:3306/inout_test?useSSL=false
+    baseline-on-migrate: true
+    validate-on-migrate: false
+  rabbitmq:
+    username: angulardemoaccess
+    password: angulardemoaccess
+    host: 172.31.14.1
+    port: 5672
+
+server:
+  port: 8080
+
+logging:
+  level:
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
+
+ssm:
+  mode: dev
+  path: /exrates/auth-service/test/pass.token
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_URI:http://172.50.50.245:8090/eureka}
+    should-unregister-on-shutdown: true
+    registry-fetch-interval-seconds: 5
+  instance:
+    preferIpAddress: true
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+    lease-renewal-interval-in-seconds: 10
+    metadata-map:
+      startup: ${random.int}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: ALWAYS

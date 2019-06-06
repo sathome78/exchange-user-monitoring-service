@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="process.id=%X{process.id}  %d{dd MMM yyyy HH:mm:ss.SSS} %level [%t] %C:%M:%L - %message  %n"/>
+        </Console>
+        <RollingFile name="Logs" fileName="${sys:catalina.home}/logs/general/log.log"
+            filePattern="${sys:catalina.home}/logs/general/log_%d_%i.log" append="true">
+            <PatternLayout pattern="log_file=Logs %d{dd MMM yyyy HH:mm:ss.SSS} %level [%t] %C:%M:%L - %message%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="20 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+
+        <Socket name="Socket" host="172.10.12.148" port="4560">
+            <JsonLayout complete="true" compact="false" />
+        </Socket>
+    </Appenders>
+    <Loggers>
+        <Logger name="jdbc_logger" level="ALL" additivity="false">
+            <AppenderRef ref="Socket"/>
+            <appender-ref ref="jdbc_log" />
+        </Logger>
+        <logger name="inout" level="ALL" additivity="false">
+            <AppenderRef ref="Socket"/>
+            <AppenderRef ref="inout"/>
+        </logger>
+        <Root level="INFO">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="Logs"/>
+            <AppenderRef ref="Socket"/>
+        </Root>
+    </Loggers>
+</Configuration>

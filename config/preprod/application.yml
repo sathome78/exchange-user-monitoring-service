@@ -1,0 +1,50 @@
+spring:
+  profiles:
+    active: preprod
+  application:
+    admin:
+      enabled: true
+    name: input-output-service
+  datasource:
+    hikari:
+      username: devpreprod
+      password: jaa9Thaipofath
+      jdbc-url: jdbc:mysql://birzha-aurora-preprod-cluster.cluster-cedlveyttji9.us-east-2.rds.amazonaws.com:3306/birzha?useUnicode=true&characterEncoding=UTF-8&useSSL=false&autoReconnect=true
+      connection-test-query: SELECT 1 FROM DUAL
+      driver-class-name: com.mysql.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+  rabbitmq:
+    username: preprod
+    password: eehVBU21x
+    host: 172.10.10.33
+    port: 5672
+
+server:
+  port: 8080
+ssm:
+  mode: dev
+  path: /exrates/auth-service/test/pass.token
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_URI:http://172.50.50.245:8090/eureka}
+    should-unregister-on-shutdown: true
+    registry-fetch-interval-seconds: 5
+  instance:
+    preferIpAddress: true
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+    lease-renewal-interval-in-seconds: 10
+    metadata-map:
+      startup: ${random.int}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: ALWAYS

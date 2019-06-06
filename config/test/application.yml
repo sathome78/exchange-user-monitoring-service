@@ -1,0 +1,55 @@
+spring:
+  profiles:
+    active: test
+  application:
+    admin:
+      enabled: true
+    name: user-monitoring-service
+  datasource:
+    hikari:
+      username: exdevdb
+      password: KQmK82dd
+      jdbc-url: jdbc:mysql://exdbdev.cedlveyttji9.us-east-2.rds.amazonaws.com:3306/dbdev2?useUnicode=true&characterEncoding=UTF-8&useSSL=false
+      connection-test-query: SELECT 1 FROM DUAL
+      driver-class-name: com.mysql.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+  redis:
+    host: 172.50.50.100
+    port: 6379
+  rabbitmq:
+    username: developer
+    password: eehei4AeJein
+    host: rabbitmq-dev.service
+    port: 5672
+
+
+server:
+  port: 8080
+
+ssm:
+  mode: dev
+  path: /exrates/auth-service/test/pass.token
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_URI:http://172.50.50.245:8090/eureka}
+    should-unregister-on-shutdown: true
+    registry-fetch-interval-seconds: 5
+    instance:
+      preferIpAddress: true
+      instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+      lease-renewal-interval-in-seconds: 10
+      metadata-map:
+        startup: ${random.int}
+
+    management:
+      endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: ALWAYS

@@ -1,0 +1,68 @@
+logging:
+  level:
+    ROOT: INFO
+
+spring:
+  profiles:
+    active: dev
+  application:
+    admin:
+      enabled: true
+    name: input-output-service
+  datasource:
+    hikari:
+      ssm-path: vLHjSkPJjB6JLVcA
+      username: root
+      password: root
+      jdbc-url: jdbc:mysql://localhost:3306/user_monitoring?useSSL=false
+      connection-test-query: SELECT 1 FROM DUAL
+      driver-class-name: com.mysql.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+  flyway:
+    locations: classpath:db/migration
+    user: root
+    password: root
+    url: jdbc:mysql://localhost:3306/riskapp?useSSL=false
+    baseline-on-migrate: true
+    validate-on-migrate: false
+  sqs:
+    url:
+    access_key_id : your_access_key_id
+    secret_key_id : your_secret_access_key
+
+
+ssm:
+  mode: dev
+  path: /exrates/auth-service/test/pass.token
+
+
+endpoints:
+  stock: http://localhost:8080/
+  inoutPrefix: /inout
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_URI:http://172.50.50.245:8090/eureka}
+    should-unregister-on-shutdown: true
+    registry-fetch-interval-seconds: 5
+  instance:
+    preferIpAddress: true
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+    lease-renewal-interval-in-seconds: 10
+    metadata-map:
+      startup: ${random.int}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: ALWAYS
+
+server:
+  port: 8070
