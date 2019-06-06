@@ -1,1 +1,0 @@
-CREATE table EVENT if NOT EXISTS

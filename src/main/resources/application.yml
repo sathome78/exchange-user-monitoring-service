@@ -8,7 +8,7 @@ spring:
   application:
     admin:
       enabled: true
-    name: input-output-service
+    name: user_monitoring_service
   datasource:
     hikari:
       ssm-path: vLHjSkPJjB6JLVcA
@@ -21,26 +21,32 @@ spring:
     hibernate:
       ddl-auto: none
   flyway:
-    locations: classpath:db/migration
+    locations: classpath:db
     user: root
     password: root
-    url: jdbc:mysql://localhost:3306/riskapp?useSSL=false
+    url: jdbc:mysql://localhost:3306/user_monitoring?useSSL=false
     baseline-on-migrate: true
     validate-on-migrate: false
-  sqs:
-    url:
-    access_key_id : your_access_key_id
-    secret_key_id : your_secret_access_key
+    out-of-order: true
+
+cloud:
+  aws:
+    region:
+      auto: false
+      static: us-east-2
+    stack:
+      auto: false
+
+sqs:
+  url:
+  access_key_id : your_access_key_id
+  secret_key_id : your_secret_access_key
 
 
 ssm:
   mode: dev
   path: /exrates/auth-service/test/pass.token
 
-
-endpoints:
-  stock: http://localhost:8080/
-  inoutPrefix: /inout
 
 eureka:
   client:

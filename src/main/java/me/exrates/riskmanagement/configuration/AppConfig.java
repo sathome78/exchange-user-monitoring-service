@@ -94,7 +94,7 @@ public class AppConfig {
         return new DataSourceTransactionManager(slaveHikariDataSource());
     }
 
-    @Bean(name = "sqs")
+    /*@Bean(name = "sqs")
     public AmazonSQS getSqs() {
         BasicAWSCredentials awsCreds = new BasicAWSCredentials(accessKeyId, secretKeyId);
         return AmazonSQSClientBuilder
@@ -102,5 +102,5 @@ public class AppConfig {
                 .withRegion(Regions.US_EAST_2)
                 .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
                 .build();
-    }
+    }*/
 }

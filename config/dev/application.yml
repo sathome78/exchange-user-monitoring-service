@@ -72,3 +72,8 @@ management:
   endpoint:
     health:
       show-details: ALWAYS
+
+cloud:
+  aws:
+    region:
+      static: us-east-2

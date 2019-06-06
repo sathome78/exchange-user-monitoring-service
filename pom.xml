@@ -82,11 +82,15 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-aws-messaging</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>5.2.4</version>
+        </dependency>
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.15</version>
+            <version>5.1.38</version>
         </dependency>
         <dependency>
             <groupId>com.zaxxer</groupId>
