@@ -6,4 +6,10 @@ CREATE TABLE IF NOT EXISTS EVENT
   timestamp           TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT IGNORE INTO EVENT (email, description) VALUES ('aaaa@i.ua', 'buy');
+CREATE TABLE IF NOT EXISTS EVENT_METADATA
+(
+    event_id                  INT(40)      UNSIGNED PRIMARY KEY   NOT NULL,
+    metadata_json             JSON NOT NULL,
+    CONSTRAINT event_metadata_event_id_fk FOREIGN KEY (event_id) REFERENCES EVENT (id)
+);
+

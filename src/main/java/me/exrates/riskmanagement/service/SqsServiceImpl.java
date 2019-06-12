@@ -9,6 +9,9 @@ import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.aws.messaging.listener.SqsMessageDeletionPolicy;
+import org.springframework.cloud.aws.messaging.listener.annotation.SqsListener;
+import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -36,7 +39,7 @@ public class SqsServiceImpl implements SqsService {
 
     @PostConstruct
     private void init() {
-            scheduler.schedule(this::receive, 30, TimeUnit.SECONDS);
+           /* scheduler.schedule(this::receive, 30, TimeUnit.SECONDS);*/
     }
 
     private void receive() {
@@ -72,6 +75,21 @@ public class SqsServiceImpl implements SqsService {
         }
     }
 
+    @SqsListener(value = "${build_request_queue.name}", deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
+    public void receive(String message, @Headers Map<String, Object> header) {
+        try {
+            // write message processing here
+        } catch (RuntimeException e) {
+            // handle errors here for which message from queue should not be deleted
+            // throwing an exception will make receive method fail and hence message does not get deleted
+            throw e;
+
+        } catch (Exception e) {
+            // suppress exceptions for which message should be deleted.
+        }
+    }
+
+
     private void deleteMessage(Message message) {
         System.out.println("Deleting a message.\n");
         final String messageReceiptHandle = message.getReceiptHandle();
@@ -80,6 +98,11 @@ public class SqsServiceImpl implements SqsService {
     }
 
     public static void main(String[] args) {
+        receiveMessage();
+    }
+
+    private static void receiveMessage() {
+
     }
 
     private static String createNewQueue(AmazonSQS sqs, String queueName) {

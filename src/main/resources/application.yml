@@ -33,12 +33,16 @@ cloud:
   aws:
     region:
       auto: false
-      static: us-east-2
+      static: eu-central-1
     stack:
       auto: false
 
+secret_manager:
+  region: eu-central-1
+  sqs_creds_name: dev_api_creds
+
 sqs:
-  url:
+  url: https://sqs.eu-central-1.amazonaws.com/415915243029/user_monitoring_service_dev_queue
   access_key_id : your_access_key_id
   secret_key_id : your_secret_access_key
 
