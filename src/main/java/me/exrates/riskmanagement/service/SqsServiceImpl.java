@@ -1,58 +1,74 @@
 package me.exrates.riskmanagement.service;
 
 
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.sqs.AmazonSQS;
-import com.amazonaws.services.sqs.model.CreateQueueRequest;
-import com.amazonaws.services.sqs.model.DeleteMessageRequest;
+import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
+import me.exrates.riskmanagement.model.Event;
 import org.springframework.cloud.aws.messaging.listener.SqsMessageDeletionPolicy;
 import org.springframework.cloud.aws.messaging.listener.annotation.SqsListener;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import java.util.HashMap;
+
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 @Log4j2
-/*@Component*/
+@Component
 public class SqsServiceImpl implements SqsService {
 
-    @Value("${sqs.url}")
-    private String sqsURL;
+    private final ObjectMapper objectMapper;
+    private final EventsService eventsService;
 
-    private final AmazonSQS sqs;
-
-    public SqsServiceImpl(@Qualifier("sqs") AmazonSQS sqs) {
-        this.sqs = sqs;
+    public SqsServiceImpl(ObjectMapper objectMapper, EventsService eventsService) {
+        this.objectMapper = objectMapper;
+        this.eventsService = eventsService;
     }
 
-    private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-    @PostConstruct
-    private void init() {
-           /* scheduler.schedule(this::receive, 30, TimeUnit.SECONDS);*/
+    @SqsListener(value = "${sqs.url}", deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
+    public void receive(String message, @Headers Map<String, Object> header) throws IOException {
+        try {
+            System.out.println("received message " + message);
+            Event event = objectMapper.readValue(message, Event.class);
+            eventsService.saveNewEvent(event);
+        } catch (Exception e) {
+            log.error(e);
+            throw e;
+        }
     }
 
-    private void receive() {
+
+/*----------------------for testing ----------------------------------------------*/
+    public static void main(String[] args) {
+        receiveMessage();
+    }
+
+    private static void receiveMessage() {
+        /*BasicAWSCredentials awsCreds = new BasicAWSCredentials("AKIAILEI4FYC7BVUZDGQ", "IMJfSp9cfUJAj7Dem/7K4VBhD21G90yESnyvhuBB");*/
+        String myQueueUrl = "https://sqs.eu-central-1.amazonaws.com/415915243029/new_queu.fifo";
+        final AmazonSQS sqs = AmazonSQSClientBuilder
+                .standard()
+                .withRegion(Regions.EU_CENTRAL_1)
+                .build();
+
+        System.out.println("Listing all queues in your account.\n");
+        for (final String queueUrl : sqs.listQueues().getQueueUrls()) {
+            System.out.println("  QueueUrl: " + queueUrl);
+        }
+        System.out.println();
+
+        System.out.println("Receiving messages from MyQueue.\n");
         final ReceiveMessageRequest receiveMessageRequest =
-                new ReceiveMessageRequest(sqsURL)
-                        .withMaxNumberOfMessages(1)
-                        .withWaitTimeSeconds(3);
-        // Uncomment the following to provide the ReceiveRequestDeduplicationId
-        //receiveMessageRequest.setReceiveRequestAttemptId("1");
-        final List<Message> messages = sqs
-                .receiveMessage(receiveMessageRequest)
+                new ReceiveMessageRequest(myQueueUrl);
+        final List<Message> messages = sqs.receiveMessage(receiveMessageRequest)
                 .getMessages();
-
         for (final Message message : messages) {
             System.out.println("Message");
             System.out.println("  MessageId:     "
@@ -71,65 +87,7 @@ public class SqsServiceImpl implements SqsService {
                 System.out.println("  Value: " + entry
                         .getValue());
             }
-            deleteMessage(message);
         }
+        System.out.println();
     }
-
-    @SqsListener(value = "${build_request_queue.name}", deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
-    public void receive(String message, @Headers Map<String, Object> header) {
-        try {
-            // write message processing here
-        } catch (RuntimeException e) {
-            // handle errors here for which message from queue should not be deleted
-            // throwing an exception will make receive method fail and hence message does not get deleted
-            throw e;
-
-        } catch (Exception e) {
-            // suppress exceptions for which message should be deleted.
-        }
-    }
-
-
-    private void deleteMessage(Message message) {
-        System.out.println("Deleting a message.\n");
-        final String messageReceiptHandle = message.getReceiptHandle();
-        sqs.deleteMessage(new DeleteMessageRequest(sqsURL,
-                messageReceiptHandle));
-    }
-
-    public static void main(String[] args) {
-        receiveMessage();
-    }
-
-    private static void receiveMessage() {
-
-    }
-
-    private static String createNewQueue(AmazonSQS sqs, String queueName) {
-        // Create a FIFO queue.
-        final Map<String, String> attributes = new HashMap<>();
-
-        // A FIFO queue must have the FifoQueue attribute set to true.
-        attributes.put("FifoQueue", "true");
-        /*
-         * If the user doesn't provide a MessageDeduplicationId, generate a
-         * MessageDeduplicationId based on the content.
-         */
-        attributes.put("ContentBasedDeduplication", "true");
-
-        // The FIFO queue name must end with the .fifo suffix.
-        final CreateQueueRequest createQueueRequest =
-                new CreateQueueRequest(queueName)
-                        .withAttributes(attributes);
-        final String myQueueUrl = sqs.createQueue(createQueueRequest).getQueueUrl();
-
-        // List all queues.
-        System.out.println("Listing all queues in your account.\n");
-        for (final String queueUrl : sqs.listQueues().getQueueUrls()) {
-            System.out.println("  QueueUrl: " + queueUrl);
-        }
-        return myQueueUrl;
-    }
-
-
 }

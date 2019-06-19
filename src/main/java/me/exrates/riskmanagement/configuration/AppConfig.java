@@ -44,15 +44,6 @@ public class AppConfig {
     @Value("${spring.datasource.hikari.password}")
     private String password;
 
-    @Value("${sqs.access_key_id}")
-    private String accessKeyId;
-    @Value("${sqs.secret_key_id}")
-    private String secretKeyId;
-
-    @Value("${secret_manager.region}")
-    private String secretRegion;
-    @Value("${secret_manager.sqs_creds_name}")
-    private String secretNameForQueue;
 
 
     @Bean(name = "masterHikariDataSource")
@@ -109,19 +100,13 @@ public class AppConfig {
         return new DataSourceTransactionManager(slaveHikariDataSource());
     }
 
-    @Bean
-    public AWSSecretLookup getAwsSecretLookup() {
-        return new AwsSecretLookupImpl();
-    }
 
     @Bean
+    @Primary
     public AmazonSQSAsync amazonSQSAsync() {
-        AwsSecret secret = getAwsSecretLookup().getSecretKeys(secretRegion, secretNameForQueue);
-        BasicAWSCredentials awsCreds = new BasicAWSCredentials(secret.getKeyId(), secret.getKeySecret());
         return AmazonSQSAsyncClientBuilder
                 .standard()
-                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-                .withRegion(Regions.US_EAST_2)
+                .withRegion(Regions.EU_CENTRAL_1)
                 .build();
     }
 
@@ -154,16 +139,4 @@ public class AppConfig {
         executor.initialize();
         return executor;
     }
-
-
-    /*@Bean(name = "sqs")
-    public QueueMessagingTemplate getSqs() {
-        BasicAWSCredentials awsCreds = new BasicAWSCredentials(accessKeyId, secretKeyId);
-        AmazonSQSAsync sqs = AmazonSQSAsyncClientBuilder
-                .standard()
-                .withRegion(Regions.US_EAST_2)
-                .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
-                .build();
-        return new QueueMessagingTemplate(sqs);
-    }*/
 }

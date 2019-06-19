@@ -42,9 +42,7 @@ secret_manager:
   sqs_creds_name: dev_api_creds
 
 sqs:
-  url: https://sqs.eu-central-1.amazonaws.com/415915243029/user_monitoring_service_dev_queue
-  access_key_id : your_access_key_id
-  secret_key_id : your_secret_access_key
+  url: https://sqs.eu-central-1.amazonaws.com/415915243029/new_queu.fifo
 
 
 ssm:
